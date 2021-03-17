@@ -787,6 +787,7 @@ typedef struct {
   // Redraw of screen (ie. across page stack)
   bool                bScreenNeedRedraw; ///< Screen requires a redraw
   bool                bScreenNeedFlip;   ///< Screen requires a page flip
+  bool                bScreenDisableRedraw;  ///< Screen redrawing disabled
 
   // Current clip region
   bool                bInvalidateEn;     ///< A region of the display has been invalidated
@@ -795,6 +796,7 @@ typedef struct {
   // Callback functions
   //GSLC_CB_EVENT       pfuncXEvent;      ///< UNUSED: Callback func ptr for events
   GSLC_CB_PIN_POLL    pfuncPinPoll;     ///< Callback func ptr for pin polling
+  bool                pfuncXTouchDisabled; ///< Disable touch events
 
 
   // Key/pin input control mapping
@@ -2463,6 +2465,9 @@ void gslc_SetTouchRemapYX(gslc_tsGui* pGui, bool bSwap);
 void gslc_SetPinPollFunc(gslc_tsGui* pGui, GSLC_CB_PIN_POLL pfunc);
 
 /// \todo Doc. This API is experimental and subject to change
+void gslc_SetTouchDisabled(gslc_tsGui* pGui,bool pbool);
+
+/// \todo Doc. This API is experimental and subject to change
 void gslc_InitInputMap(gslc_tsGui* pGui,gslc_tsInputMap* asInputMap,uint8_t nInputMapMax);
 
 /// \todo Doc. This API is experimental and subject to change
@@ -3432,6 +3437,8 @@ void gslc_PageRedrawCalc(gslc_tsGui* pGui);
 /// \todo Doc. This API is experimental and subject to change
 int16_t gslc_PageFocusStep(gslc_tsGui* pGui,gslc_tsPage* pPage,bool bNext);
 
+/// \todo Doc. This API is experimental and subject to change
+void gslc_SetScreenDisableRedraw(gslc_tsGui* pGui,bool pbool);
 
 ///
 /// Create an event structure

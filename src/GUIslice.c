@@ -177,6 +177,7 @@ bool gslc_Init(gslc_tsGui* pGui,void* pvDriver,gslc_tsPage* asPage,uint8_t nMaxP
   }
   pGui->bScreenNeedRedraw  = true;
   pGui->bScreenNeedFlip    = false;
+  pGui->bScreenDisableRedraw = false;
 
   gslc_InvalidateRgnReset(pGui);
 
@@ -216,6 +217,7 @@ bool gslc_Init(gslc_tsGui* pGui,void* pvDriver,gslc_tsPage* asPage,uint8_t nMaxP
 
   //pGui->pfuncXEvent           = NULL; // UNUSED
   pGui->pfuncPinPoll          = NULL;
+  pGui->pfuncXTouchDisabled   = false;
 
   pGui->asInputMap            = NULL;
   pGui->nInputMapMax          = 0;
@@ -286,6 +288,10 @@ void gslc_SetPinPollFunc(gslc_tsGui* pGui,GSLC_CB_PIN_POLL pfunc)
   pGui->pfuncPinPoll = pfunc;
 }
 
+void gslc_SetTouchDisabled(gslc_tsGui* pGui,bool pbool)
+{
+  pGui->pfuncXTouchDisabled = pbool;
+}
 
 void gslc_InitInputMap(gslc_tsGui* pGui,gslc_tsInputMap* asInputMap,uint8_t nInputMapMax)
 {
@@ -723,7 +729,9 @@ void gslc_Update(gslc_tsGui* pGui)
   }
 
   // Perform any redraw required for current page
-  gslc_PageRedrawGo(pGui);
+  if (!pGui->bScreenDisableRedraw) {
+    gslc_PageRedrawGo(pGui);
+  }
 
   // Simple "frame" rate reporting
   // - Note that the rate is based on the number of calls to gslc_Update()
@@ -2473,6 +2481,11 @@ int16_t gslc_PageFocusStep(gslc_tsGui* pGui, gslc_tsPage* pPage, bool bNext)
 }
 
 
+void gslc_SetScreenDisableRedraw(gslc_tsGui* pGui,bool pbool)
+{
+  pGui->bScreenDisableRedraw = pbool;
+}
+
 // ------------------------------------------------------------------------
 // Element General Functions
 // ------------------------------------------------------------------------
@@ -2885,7 +2898,7 @@ bool gslc_ElemEvent(void* pvGui,gslc_tsEvent sEvent)
       pfuncXTouch = pElemTracked->pfuncXTouch;
 
       // Invoke the callback function
-      if (pfuncXTouch != NULL) {
+      if (!pGui->pfuncXTouchDisabled && pfuncXTouch != NULL) {
         // Pass in the relative position from corner of element region
         (*pfuncXTouch)(pvGui,(void*)(pElemRefTracked),eTouch,nRelX,nRelY);
       }
